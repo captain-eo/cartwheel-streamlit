@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 load_dotenv()
 
 st.set_page_config(layout="centered")
-col1, col2 = st.columns([4, 1])
+# col1, col2 = st.columns([4, 1])
 
 # Retrieve environment variables
 DB_HOST = os.getenv("DB_HOST")
@@ -36,7 +36,7 @@ usernames = usernames_df['username'].tolist()
 end_date_default = datetime.today().date()
 start_date_default = end_date_default - timedelta(days=30)
 
-with col2:
+with st.sidebar:
     # Include date pickers for start date and end date with default values
     start_date = st.date_input("Select start date", value=start_date_default)
     end_date = st.date_input("Select end date", value=end_date_default)
@@ -62,25 +62,25 @@ else:
 hourly_data = fetch_data(engine, query)
 
 if hourly_data is not None:
-    with col1:
-        # st.write(df.head())
-        st.write(f"Total records: {hourly_data.shape[0]}")
-        total_sales = hourly_data['sale_total'].sum()
-        st.write(f"Total sales: ${total_sales:.2f}")
+    st.header("Transactions by hour")
+    # st.write(df.head())
+    st.write(f"Total records: {hourly_data.shape[0]}")
+    total_sales = hourly_data['sale_total'].sum()
+    st.write(f"Total sales: ${total_sales:.2f}")
 
-        # Convert date_sold to datetime
-        hourly_data['date_sold'] = pd.to_datetime(hourly_data['date_sold'])
+    # Convert date_sold to datetime
+    hourly_data['date_sold'] = pd.to_datetime(hourly_data['date_sold'])
 
-        # Extract hour from date_sold
-        hourly_data['hour_sold'] = hourly_data['date_sold'].dt.hour
+    # Extract hour from date_sold
+    hourly_data['hour_sold'] = hourly_data['date_sold'].dt.hour
 
-        # Group data by hour and calculate total sales and number of transactions
-        sales_by_hour = hourly_data.groupby('hour_sold')['sale_total'].sum()
-        transactions_by_hour = hourly_data.groupby('hour_sold').size()
+    # Group data by hour and calculate total sales and number of transactions
+    sales_by_hour = hourly_data.groupby('hour_sold')['sale_total'].sum()
+    transactions_by_hour = hourly_data.groupby('hour_sold').size()
 
-        # Create bar charts using Streamlit
-        st.write("Total Sales by Hour")
-        st.bar_chart(sales_by_hour)
+    # Create bar charts using Streamlit
+    st.write("Total Sales by Hour")
+    st.bar_chart(sales_by_hour)
 
-        st.write("Number of Transactions by Hour")
-        st.bar_chart(transactions_by_hour)
+    st.write("Number of Transactions by Hour")
+    st.bar_chart(transactions_by_hour, color=['#00ff00'])
